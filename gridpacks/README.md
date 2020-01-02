@@ -2,7 +2,7 @@
 
 ## Setup
 
-In order to have the correct genproductions setup, run the followin script:
+In order to have the correct genproductions setup, run the following script:
 ```
 ./setupGenProductions.sh
 ```
@@ -24,4 +24,8 @@ You can create new gridpacks using the following script:
 ```
 ./createHeavyNeutrinoGridpack_LO.py --help
 ```
-Use the --help option to show the optional arguments.
+Use the *--help* option to show the optional arguments.
+
+The created gridpacks will end up in the *prompt* and *displaced* directories (the latter gridpacks are a modification of the first one, calling an additional script to rewrite the LHE file with a lifetime for the heavy neutrino).
+When you do not run this script on the Brussels T2, use the *--queue=local* option instead. Even though part of the gridpack creation happens on the cluster, do not run too many jobs in parallel on the same machine,
+as heavy tar/untar commands are run towards the end (i.e. be careful to not run out of memory).
