@@ -87,7 +87,7 @@ def createGridpack(coupling):
   sys.path.append(cardsPath)
   from makeHeavyNeutrinoCards import makeHeavyNeutrinoCards
   os.chdir(cardsPath)
-  baseName = makeHeavyNeutrinoCards(intOrFloat(args.mass), float(coupling), args.flavor, args.pre2017, args.hnlType, noZ=False, dirac=('dirac' in args.hnlType), cc=('cc' in args.hnlType))
+  baseName = makeHeavyNeutrinoCards(intOrFloat(args.mass), float(coupling), args.flavor, args.pre2017, args.channel, noZ=False, dirac=('dirac' in args.hnlType), cc=('cc' in args.hnlType))
   os.chdir(workDir)
 
   # Check if displaced gridpack already exists
