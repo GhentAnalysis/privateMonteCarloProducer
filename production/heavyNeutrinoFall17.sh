@@ -8,16 +8,14 @@ log(){
 
 events=1000
 
-log "Fall17"
-log $gridpack
+log "era:Fall17"
+log "gridpack:$gridpackDir/$gridpack"
 log $promptOrDisplaced
 log $spec
 
 # Set default fragment
-if [[ $spec == *"tauLeptonic"* ]]; then
-  fragment='pythiaFragmentCP5_LO_tauLeptonic.py'
-else
-  fragment='pythiaFragmentCP5_LO.py'
+if [[ $spec == *"tauLeptonic"* ]]; then fragment='pythiaFragmentCP5_LO_tauLeptonic.py'
+else                                    fragment='pythiaFragmentCP5_LO.py'
 fi
 log "Using fragment $fragment"
 
@@ -43,15 +41,8 @@ cd /user/$USER/production/${gridpack}_${promptOrDisplaced}_Fall17/$productionNum
 #
 # Find the gridpack
 #
-gridpackPath=/user/tomc/public/production/gridpacks/${promptOrDisplaced}/${gridpack}_tarball.tar.xz
-if [ ! -f $gridpackPath ]; then
-  gridpackPath=/pnfs/iihe/cms/store/user/tomc/gridpacks/beforeSeptember2019/${promptOrDisplaced}/${gridpack}_tarball.tar.xz
-elif [ ! -f $gridpackPath ]; then
-  gridpackPath=/pnfs/iihe/cms/store/user/tomc/gridpacks/beforeApril2019/${promptOrDisplaced}/${gridpack}_tarball.tar.xz
-fi
+gridpackPath=$gridpackDir/${gridpack}_tarball.tar.xz
 log "Using gridpack $gridpackPath"
-
-
 
 
 #
@@ -69,7 +60,7 @@ eval `scram runtime -sh`
 
 export X509_USER_PROXY=$HOME/private/personal/voms_proxy.cert
 mkdir -p Configuration/GenProduction/python
-cp /user/tomc/public/production/$fragment Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py 
+cp $fragmentDir/pythiaFragments/$fragment Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py
 
 sed -i "s!GRIDPACK!${gridpackPath}!g" Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py
 

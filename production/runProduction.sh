@@ -3,10 +3,12 @@
 #
 # Usage: ./runProduction.sh era gridpackPath option
 #   with "era" one of [Moriond17, Fall17, Autumn18]
-#   with "gridpackPth simply the path to your gridpack
+#   with "gridpackPath simply the path to your gridpack
 #   with "option" currently only "tauLeptonic" implemented or empty
 gridpack=$(basename $2)
 gridpack=${gridpack%_tarball.tar.xz}
+gridpackDir=$(dirname $(readlink -f $2))
+fragmentDir=$PWD
 era=$1
 
 if [[ $2 == *"prompt"* ]];      then promptOrDisplaced=prompt
@@ -14,17 +16,18 @@ elif [[ $2 == *"displaced"* ]]; then promptOrDisplaced=displaced
 else                                 promptOrDisplaced=displaced
 fi
 
-# In the private production, always use the 2017 gridpacks
-if [[ $2 == *"pre2017"* ]]; then
-  exit
-fi
-
-
 if [[ $3 == *"tauLeptonic"* ]]; then
   spec='_tauLeptonic'
   echo "Will use leptonic tau decays"
 fi
 
+# Log directory
+logDir=$PWD/log/$1/$gridpack$spec
+mkdir -p $logDir
+
+# Job submission limits
+maxQueuing=5
+maxRunningNewLastHour=45
 
 # Output directory
 if   [[ $1 == *"Moriond17"* ]]; then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Moriond17_aug2018_miniAODv3
@@ -33,9 +36,9 @@ elif [[ $1 == *"Autumn18"* ]];  then dir=/pnfs/iihe/cms/store/user/$USER/heavyNe
 fi
 
 # Script
-if   [[ $1 == *"Moriond17"* ]]; then script=/user/tomc/public/production/heavyNeutrinoMoriond17.sh
-elif [[ $1 == *"Fall17"* ]];    then script=/user/tomc/public/production/heavyNeutrinoFall17.sh
-elif [[ $1 == *"Autumn18"* ]];  then script=/user/tomc/public/production/heavyNeutrinoAutumn18.sh
+if   [[ $1 == *"Moriond17"* ]]; then script=$PWD/heavyNeutrinoMoriond17.sh
+elif [[ $1 == *"Fall17"* ]];    then script=$PWD/heavyNeutrinoFall17.sh
+elif [[ $1 == *"Autumn18"* ]];  then script=$PWD/heavyNeutrinoAutumn18.sh
 fi
 
 # Checking current status of the production for this gridpack
@@ -103,6 +106,7 @@ waitBeforeNextTry(){
   fi
 }
 
+
 for i in $(seq 1 $target); do
   if [ -f $dir/$promptOrDisplaced/$shortName/heavyNeutrino_$i.root ]; then
     printf "Skipping $i of $shortName, outputfile already exists\n"
@@ -115,12 +119,12 @@ for i in $(seq 1 $target); do
         queuing=$(echo "$qstat" | grep 'Q' | wc -l)
         runningNewLastHour=$(echo "$qstat" | grep 'R 00:' | wc -l)
         nofailure=$(echo "$qstat" | grep 'OK' | wc -l)
-        (( $queuing > 5 )) || (( $runningNewLastHour > 45 )) || (( $nofailure < 1 ))
+        (( $queuing > $maxQueuing )) || (( $runningNewLastHour > $maxRunningNewLastHour )) || (( $nofailure < 1 ))
       do
         waitBeforeNextTry $i
       done
-      mkdir -p ~/public/log/$gridpack$spec
-      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",promptOrDisplaced="$promptOrDisplaced",spec="$spec" -q localgrid@cream02 -o "/user/$USER/public/log/$gridpack$spec/$i.txt" -e "/user/$USER/public/log/$gridpack$spec/$i.txt" -l walltime=20:00:00 $script)
+      touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
+      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=20:00:00 $script)
     done
     printf "Submitted $i of $shortName \n"
     waitBeforeNextTry $i
