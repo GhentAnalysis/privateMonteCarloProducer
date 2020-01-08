@@ -18,18 +18,19 @@ def checkLogFile(file):
         state   ='Unknown'
         for line in f:
           if 'INFO:root:era'                                                            in line: era      = line.split('era:')[-1].replace('\n','')
-          if 'INFO:root:gridpack'                                                       in line: gridpack = line.split('gridpack:')[-1].replace('\n','')
+          if 'INFO:root:gridpack'                                                       in line: gridpack = line.split('gridpack:')[-1].split('_slc')[0] + '*'
           if 'gridftp session cache garbage collection'                                 in line: state    = 'DONE'
           elif 'Disk quota exceeded'                                                    in line: state    = 'Disk quota exceeded'
           elif 'Can not open file for writing'                                          in line: state    = 'Disk quota exceeded'
           elif 'Skipping, outputfile already exists'                                    in line: state    = 'Output file already exists'
           elif 'Directory still in use by other job'                                    in line: state    = 'Working directory in use by other job'
           elif '.tar.xz: Cannot open: No such file or directory'                        in line: state    = 'Gridpack does not exist'
-          elif "'Input/output state' (error code 5)"                                    in line: error    = 'Input/output error'
-          elif 'read() failed with system state'                                        in line: error    = 'Input/output error'
-          elif 'open() failed with system state'                                        in line: error    = 'Input/output error'
+          elif "'Input/output error' (error code 5)"                                    in line: state    = 'Input/output error'
+          elif 'read() failed with system error'                                        in line: state    = 'Input/output error'
+          elif 'open() failed with system error'                                        in line: state    = 'Input/output error'
           elif "An exception of category 'FallbackFileOpenError' occurred"              in line: state    = 'Input/output error'
-          elif 'read failed ; remote I/O state'                                         in line: error    = 'Input/output error'
+          elif 'read failed ; remote I/O error'                                         in line: state    = 'Input/output error'
+          elif "write() failed with system error 'Stale file handle' (error code 116)"  in line: state    = 'Input/output error'
           elif 'Stale file handle'                                                      in line: state    = 'Automatic disk clean-up - staleFileHandle'
           elif 'getcwd() failed'                                                        in line: state    = 'Automatic disk clean-up - getCwdFailed'
           elif 'EventCorruption'                                                        in line: state    = 'Automatic disk clean-up - eventCorruption'
@@ -45,7 +46,7 @@ def checkLogFile(file):
           elif 'Killed'                                                                 in line: state    = 'Job killed'
           elif 'Aborted'                                                                in line: state    = 'Job aborted'
           elif 'A fatal system signal has occurred: segmentation violation'             in line: state    = 'Segmentation fault'
-          elif 'Bus state'                                                              in line: error    = 'Bus error'
+          elif 'Bus error'                                                              in line: state    = 'Bus error'
           elif 'Too many levels of symbolic links'                                      in line: state    = 'Too many levels of symbolic links'
           elif 'tar: Error is not recoverable: exiting now'                             in line: state    = 'Corrupt gridpack - Compression failed'
           elif 'fewer events than were requested'                                       in line: state    = 'Phase space issues in the gridpack - please check your model/madgraph parameters'
@@ -63,6 +64,10 @@ def checkLogFile(file):
           elif '@SUB=TXMLEngine::ParseFile'                                             in line: state    = 'XML parse error'
           elif 'Module: OscarMTProducer:g4SimHits (crashed)'                            in line: state    = 'Crash of geant4'
           elif 'Fatal Root Error: @SUB=TBasket::Streamer'                               in line: state    = 'ROOT file corruoption'
+          if state=='Input/output error':
+            for line in f:
+              if 'xrootd'                                                               in line: state    = 'Problem with accessing the pile-up through xrootd'
+          elif state!='Unknown': continue
   except:
     state = 'Unreadable logfile'
   return era, gridpack, jobId, state
@@ -75,6 +80,7 @@ for file in glob.glob('log/*/*/*.txt'):
   if state in results: results[state].append((era, gridpack, jobId))
   else:                results[state] = [(era, gridpack, jobId)]
   if state!='Unknown': os.remove(file)
+  else:                print 'Unkown state for logfile %s, please check manually!' % file
 
 for state in sorted(set(results.keys())):
   print '\n\n%s\n%s' % (state, '-'*len(state))
