@@ -5,6 +5,24 @@ log(){
   python -c "import logging;logging.basicConfig(level = logging.INFO);logging.info('$1')"
 }
 
+# cmsswRelease RELEASE FUNCTION
+#   checks out CMSSW RELEASE and applies FUNCTION with modifications to it
+cmsswRelease(){
+  if [ -r $1/src ] ; then
+    echo release $1 already exists
+  else
+    scram p CMSSW $1
+  fi
+  cd $1/src
+  eval `scram runtime -sh`
+
+  if [ -n "$2" ]; then $2; fi
+
+  scram b
+  cd ../../
+}
+
+
 
 events=1000
 
@@ -45,80 +63,13 @@ gridpackPath=$gridpackDir/${gridpack}_tarball.tar.xz
 log "Using gridpack $gridpackPath"
 
 
-#
-# GEN-SIM
-#
-source $VO_CMS_SW_DIR/cmsset_default.sh
-export SCRAM_ARCH=slc6_amd64_gcc481
-if [ -r CMSSW_9_3_12_patch2/src ] ; then 
- log "release CMSSW_9_3_12_patch2 already exists"
-else
-scram p CMSSW CMSSW_9_3_12_patch2
-fi
-cd CMSSW_9_3_12_patch2/src
-eval `scram runtime -sh`
-
-export X509_USER_PROXY=$HOME/private/personal/voms_proxy.cert
-mkdir -p Configuration/GenProduction/python
-cp $fragmentDir/pythiaFragments/$fragment Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py
-
-sed -i "s!GRIDPACK!${gridpackPath}!g" Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py
-
-[ -s Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py ] || exit $?;
-
-scram b
-cd ../../
-cmsDriver.py Configuration/GenProduction/python/EXO-RunIIFall17wmLHEGS-heavyNeutrino-fragment.py --fileout file:EXO-RunIIFall17wmLHEGS-heavyNeutrino.root --mc --eventcontent RAWSIM,LHE --datatier GEN-SIM,LHE --conditions 93X_mc2017_realistic_v3 --beamspot Realistic25ns13TeVEarly2017Collision --step LHE,GEN,SIM --geometry DB:Extended --era Run2_2017 --python_filename EXO-RunIIFall17wmLHEGS-heavyNeutrino_1_cfg.py --no_exec -n $events || exit $? ;
-
-log "process.RandomNumberGeneratorService.generator.initialSeed = $productionNumber" >> EXO-RunIIFall17wmLHEGS-heavyNeutrino_1_cfg.py
-log "process.RandomNumberGeneratorService.externalLHEProducer.initialSeed = $productionNumber" >> EXO-RunIIFall17wmLHEGS-heavyNeutrino_1_cfg.py
-sed -i "s/process.source = cms.Source(\"EmptySource\")/process.source = cms.Source(\"EmptySource\",firstRun = cms.untracked.uint32(${productionNumber}))/g" EXO-RunIIFall17wmLHEGS-heavyNeutrino_1_cfg.py
-cmsRun -e -j EXO-RunIIFall17wmLHEGS-heavyNeutrino_rt.xml EXO-RunIIFall17wmLHEGS-heavyNeutrino_1_cfg.py || exit $? ; 
-
+# GEN-SIM, DIGI-RECO + AOD and miniAODv2 steps
+source $fragmentDir/sequences/RunIIFall17wmLHEGS.sh
 sleep 1m
-
-
-
-
-#
-# DIGI-RECO + AOD
-#
-if [ -r CMSSW_9_4_7/src ] ; then
- log "release CMSSW_9_4_7 already exists"
-else
-scram p CMSSW CMSSW_9_4_7
-fi
-cd CMSSW_9_4_7/src
-eval `scram runtime -sh`
-
-scram b
-cd ../../
-
-# Get new proxy to access pileup
-#/user/$USER/production/proxyExpect.sh
-#cmsDriver.py step1 --filein file:EXO-RunIIFall17wmLHEGS-heavyNeutrino.root --fileout file:EXO-RunIIFall17DR80Premix-heavyNeutrino_step1.root  --pileup_input "dbs:/Neutrino_E-10_gun/RunIISummer17PrePremix-MCv2_correctPU_94X_mc2017_realistic_v9-v1/GEN-SIM-DIGI-RAW" --mc --eventcontent PREMIXRAW --datatier GEN-SIM-RAW --conditions 94X_mc2017_realistic_v11 --step DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:2e34v40 --nThreads 4 --datamix PreMix --era Run2_2017 --python_filename EXO-RunIIFall17DR80Premix-heavyNeutrino_1_cfg.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $events || exit $? ;
-#because the above command suddenly stopped working on cream02, copy the default one
-cp /user/$USER/production/EXO-RunIIFall17DR80Premix-heavyNeutrino_1_cfg.py .
-cmsRun -e -j EXO-RunIIFall17DR80Premix-heavyNeutrino_rt.xml EXO-RunIIFall17DR80Premix-heavyNeutrino_1_cfg.py || exit $? ; 
-cmsDriver.py step2 --filein file:EXO-RunIIFall17DR80Premix-heavyNeutrino_step1.root --fileout file:EXO-RunIIFall17DR80Premix-heavyNeutrino.root --mc --eventcontent AODSIM --runUnscheduled --datatier AODSIM --conditions 94X_mc2017_realistic_v11 --step RAW2DIGI,RECO,EI --nThreads 4 --era Run2_2017 --python_filename EXO-RunIIFall17DR80Premix-heavyNeutrino_2_cfg.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $events || exit $? ; 
-cmsRun -e -j EXO-RunIIFall17DR80Premix-heavyNeutrino_2_rt.xml EXO-RunIIFall17DR80Premix-heavyNeutrino_2_cfg.py || exit $? ; 
-
+source $fragmentDir/sequences/RunIIFall17DRPremix.sh
 sleep 1m
-
-
-
-#
-# miniAOD
-#
-cd CMSSW_9_4_7/src
-eval `scram runtime -sh`
-
-scram b
-cd ../../
-cmsDriver.py step1 --filein file:EXO-RunIIFall17DR80Premix-heavyNeutrino.root --fileout file:EXO-RunIIFall17MiniAODv2-heavyNeutrino.root --mc --eventcontent MINIAODSIM --runUnscheduled --datatier MINIAODSIM --conditions 94X_mc2017_realistic_v14 --step PAT --nThreads 4 --scenario pp --era Run2_2017,run2_miniAOD_94XFall17 --python_filename EXO-RunIIFall17MiniAODv2-heavyNeutrino_1_cfg.py --no_exec --customise Configuration/DataProcessing/Utils.addMonitoring -n $events || exit $? ; 
-sed -i "/# Additional output definition/a process.MINIAODSIMoutput.outputCommands.append('keep recoTrack*_displaced*Muons__RECO')" EXO-RunIIFall17MiniAODv2-heavyNeutrino_1_cfg.py
-cmsRun -e -j EXO-RunIIFall17MiniAODv2-heavyNeutrino_rt.xml EXO-RunIIFall17MiniAODv2-heavyNeutrino_1_cfg.py || exit $? ; 
-
+source $fragmentDir/sequences/RunIIFall17MiniAODv2.sh
+sleep 1m
 
 # In order to get a new proxy
 /user/$USER/production/proxyExpect.sh
