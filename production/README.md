@@ -23,6 +23,17 @@ expect eof
 exit
 ```
 
+## Preparation for automatic/emergency disk cleaning
+
+The private monte carlo production could easily push you towards the quota in your user directory.
+In order to clean-up old/finished working directories, as well as emergency clean-up in case your exceeding your quota,
+put an hourly call foor the cleanProductionDir.py in your crontab:
+```
+# Minute Hour Day of Month Month Day of Week      Command    
+  40     *    *            *     *                <path>/privateMonterCarloProducer/production/cleanProductionDir.py >> ~/production/log.txt 2>&1"
+```
+
+
 ## Running the production
 Simply run the production script with the era and the path to the gridpack:
 ```
