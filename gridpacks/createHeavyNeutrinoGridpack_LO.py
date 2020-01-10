@@ -95,6 +95,9 @@ def createGridpack(coupling):
   if gridpack:
     print gridpack + ' already exist, skipping'
     return None
+  elif os.path.exists(baseName):
+    print 'Working directory genproductions/bin/MadGraph5_aMCatNLO/%s already exists, please check! (skipping)' % baseName
+    return None
   else:
     print 'Creating ' + baseName
 
