@@ -30,7 +30,7 @@ In order to clean-up old/finished working directories, as well as emergency clea
 put an hourly call foor the cleanProductionDir.py in your crontab:
 ```
 # Minute Hour Day of Month Month Day of Week      Command    
-  40     *    *            *     *                <path>/privateMonterCarloProducer/production/cleanProductionDir.py >> ~/production/log.txt 2>&1"
+  40     *    *            *     *                <path>/privateMonterCarloProducer/production/cleanProductionDir.py >> ~/production/log.txt 2>&1
 ```
 
 

@@ -30,15 +30,12 @@ maxQueuing=5
 maxRunningNewLastHour=45
 
 # Output directory
-if   [[ $1 == *"Moriond17"* ]]; then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Moriond17_aug2018_miniAODv3
-elif [[ $1 == *"Fall17"* ]];    then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Fall17
-elif [[ $1 == *"Autumn18"* ]];  then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Autumn18
-fi
-
-# Script
-if   [[ $1 == *"Moriond17"* ]]; then script=$PWD/heavyNeutrinoMoriond17.sh
-elif [[ $1 == *"Fall17"* ]];    then script=$PWD/heavyNeutrinoFall17.sh
-elif [[ $1 == *"Autumn18"* ]];  then script=$PWD/heavyNeutrinoAutumn18.sh
+if   [[ $1 == "Moriond17" ]]; then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Moriond17_aug2018_miniAODv3
+elif [[ $1 == "Fall17" ]];    then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Fall17
+elif [[ $1 == "Autumn18" ]];  then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Autumn18
+else
+  echo "Unknown era"
+  exit 1
 fi
 
 # Checking current status of the production for this gridpack
@@ -124,7 +121,7 @@ for i in $(seq 1 $target); do
         waitBeforeNextTry $i
       done
       touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
-      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=20:00:00 $script)
+      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir",era="$1" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=20:00:00 $PWD/produceEvents.sh)
     done
     printf "Submitted $i of $shortName \n"
     waitBeforeNextTry $i
