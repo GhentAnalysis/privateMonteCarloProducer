@@ -39,3 +39,14 @@ Simply run the production script with the era and the path to the gridpack:
 ```
   ./runProduction.sh Autumn18 ../gridpacks/displaced/<gridpack>
 ```
+
+## Analysis of the log files
+You could execute
+```
+  ./analyzeLogDir.py
+```
+in order to get an overview of finished jobs. If the output was correctly transferred to pnfs, the job will be listed as "DONE".
+However, there are many reasons a job could fail. Some are random, or due to the always difficult access of the neutrino gun file access
+through xrootd (don't bother asking for more copies through phedex, there is a stupid automatic script who will delete it pretty soon after).
+If many jobs fail because of disk quota or the automatic disk clean-up, then you should killall the running runProduction.sh and reduce the maxRunningNewLastHour
+parameter in the script before restarting it.

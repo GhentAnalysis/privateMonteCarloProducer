@@ -63,7 +63,7 @@ def checkLogFile(file):
           elif 'Usage: cmsDriver.py'                                                    in line: state    = 'Wrong CMS driver command'
           elif '@SUB=TXMLEngine::ParseFile'                                             in line: state    = 'XML parse error'
           elif 'Module: OscarMTProducer:g4SimHits (crashed)'                            in line: state    = 'Crash of geant4'
-          elif 'Fatal Root Error: @SUB=TBasket::Streamer'                               in line: state    = 'ROOT file corruoption'
+          elif 'Fatal Root Error: @SUB=TBasket::Streamer'                               in line: state    = 'ROOT file corruption'
           if state=='Input/output error':
             for line in f:
               if 'xrootd'                                                               in line: state    = 'Problem with accessing the pile-up through xrootd'
