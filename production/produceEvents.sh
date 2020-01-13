@@ -38,6 +38,7 @@ log $spec
 #
 # Setting directories
 #
+shortName="${gridpack%_slc*}$spec"
 if [[ $era == "Moriond17" ]]; then
   pnfsAOD=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoAOD/Moriond17_aug2018/$promptOrDisplaced/$shortName/
   pnfsMiniAOD=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Moriond17_aug2018_miniAODv3/$promptOrDisplaced/$shortName/
@@ -51,9 +52,8 @@ fi
 #
 # Quit if file already exists
 #
-shortName="${gridpack%_slc*}$spec"
 if [ -f $pnfsMiniAOD/heavyNeutrino_$productionNumber.root ]; then
-  log "Skipping, outputfile already exists"
+  log "Skipping, outputfile already exists: $pnfsMiniAOD/heavyNeutrino_$productionNumber.root"
   sleep 1
   exit
 fi
