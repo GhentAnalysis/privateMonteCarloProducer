@@ -83,7 +83,8 @@ for file in glob.glob('log/*/*/*.txt'):
   else:                print 'Unkown state for logfile %s, please check manually!' % file
 
 for state in sorted(set(results.keys())):
-  print '\n\n%s\n%s' % (state, '-'*len(state))
+  title = '%s (%i)' % (state, len(results[state]))
+  print('\n\n%s\n%s' % (title, '-'*len(title)))
   for era, gridpack, jobId in sorted(results[state]):
       print '%-10s %-4s %-120s' % (era, jobId, gridpack)
 
