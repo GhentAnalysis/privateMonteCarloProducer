@@ -67,7 +67,7 @@ def checkLogFile(file):
           if state=='Input/output error':
             for line in f:
               if 'xrootd'                                                               in line: state    = 'Problem with accessing the pile-up through xrootd'
-          elif state!='Unknown': continue
+          elif state!='Unknown': break
   except:
     state = 'Unreadable logfile'
   return era, gridpack, jobId, state
