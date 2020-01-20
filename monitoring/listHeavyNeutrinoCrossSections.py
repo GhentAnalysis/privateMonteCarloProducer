@@ -1,8 +1,4 @@
 #! /usr/bin/env python3
-#
-# TODO:
-#  - Make it possible to keep track of other user's also
-#  - Automatic commit
 import os, time, subprocess, sys, glob
 os.chdir(os.path.dirname(__file__))
 
@@ -34,13 +30,13 @@ except:
   currentLines = []
 
 # Rewrite the file and calculate the x-sec for the new ones
-maxNew, new = 5, 0
+maxNew, new = 100, 0
 with open('heavyNeutrinoCrossSections.txt',"w") as f:
   for era in ['Fall17', 'Moriond17_aug2018', 'Autumn18']:
     for type in ['prompt', 'displaced']:
       f.write((era if era!='' else 'old samples')+ ' ' + type + '\n')
       f.write('\n')
-      for dir in sorted(glob.glob(os.path.expandvars('/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/' + era + '/' + type + '/*'))):
+      for dir in sorted(glob.glob('/pnfs/iihe/cms/store/user/*/heavyNeutrinoMiniAOD/' + era + '/' + type + '/*')):
         for l in set(currentLines):
           try:
             if dir in l.split() and l.count('pb')==1:  # if the line is already present (and correctly includes exactly one cross section, otherwise some formatting error might have occured)
@@ -59,3 +55,4 @@ with open('heavyNeutrinoCrossSections.txt',"w") as f:
               xsec = line.split('= ')[-1].rstrip()
           f.write('%-180s %-50s\n' % (dir, xsec))
       f.write('\n')
+system('git add heavyNeutrinoCrossSections.txt;git commit -m"Update of gridpack cross sections"') # make sure this are separate commits (the push you have to do yourself though)
