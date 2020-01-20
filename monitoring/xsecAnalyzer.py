@@ -19,7 +19,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 if options.inputDir:
   import glob
-  for f in glob.glob(options.inputDir + '/*.root')[:30]:
+  for f in glob.glob(options.inputDir + '/*.root')[:30]: # limit to 30 files (typically 30000 events)
     options.inputFiles.append('dcap://maite.iihe.ac.be' + f)
 
 process.source = cms.Source(
