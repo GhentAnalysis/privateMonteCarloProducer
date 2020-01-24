@@ -32,7 +32,7 @@ except:
 # Rewrite the file and calculate the x-sec for the new ones
 maxNew, new = 100, 0
 with open('heavyNeutrinoCrossSections.txt',"w") as f:
-  for era in ['Fall17', 'Moriond17_aug2018', 'Autumn18']:
+  for era in ['Fall17', 'Moriond17_aug2018_miniAODv3', 'Autumn18']:
     for type in ['prompt', 'displaced']:
       f.write((era if era!='' else 'old samples')+ ' ' + type + '\n')
       f.write('\n')
