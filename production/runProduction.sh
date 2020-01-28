@@ -121,7 +121,7 @@ for i in $(seq 1 $target); do
         waitBeforeNextTry $i
       done
       touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
-      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir",era="$1" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=20:00:00 $PWD/produceEvents.sh)
+      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir",era="$1" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=30:00:00 $PWD/produceEvents.sh)
     done
     printf "Submitted $i of $shortName \n"
     waitBeforeNextTry $i
