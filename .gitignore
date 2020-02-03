@@ -1,0 +1,7 @@
+gridpacks/genproductions
+gridpacks/prompt
+gridpacks/displaced
+production/log
+monitoring/CMSSW*
+monitoring/availableHeavyNeutrinoSamples.txt
+monitoring/heavyNeutrinoFileList.txt
