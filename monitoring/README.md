@@ -5,5 +5,5 @@ This directory contains the scripts needed to collect information from the gridp
 In order to get an up-to-date list of your gridpack's cross sections, add this daily task in your crontab:
 ```
 # Minute Hour Day of Month Month Day of Week      Command   
-  30     0    *            *     *                <path>/privateMonteCarloProducer/monitoring/listHeavyNeutrinoCrossSections.py
+  30     0    *            *     *                <path>/privateMonteCarloProducer/monitoring/listCrossSectionsAndEvents.py
 ```
