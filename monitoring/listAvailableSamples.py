@@ -10,11 +10,11 @@ def getCtau(dir):
         except: pass
     return -1
 
-def getXsec(dir):
-  with open('heavyNeutrinoCrossSections.txt') as f:
+def getXsecAndEvents(dir):
+  with open('crossSectionsAndEvents.txt') as f:
     for l in f:
       if dir in l:
-        try:    return ' '.join(l.split()[1:])
+        try:    return ' '.join(l.split('pb')[0].split()[1:]), l.split('events')[0].split()[-1]
         except: pass
     return 'not_yet_available'
 
@@ -47,17 +47,17 @@ with open('availableHeavyNeutrinoSamples.txt', 'w') as f:
         ff.write(dir + '\n')
         for file in sorted(files): ff.write(file + '\n')
         ff.write('\n')
-        V      = float(dir.split('V-')[-1].split('_')[0])
-        V2     = V**2
-        mass   = float(dir.split('M-')[-1].split('_')[0])
-        ctau   = getCtau(dir.split('/')[-1])
-        ctauT  = getCtauTheory(getFlavor(dir), mass, V2)
-        ratio  = ('%2.2f' % (ctau/ctauT)) if ctauT else '-'
-        type   = 'dirac_cc' if '_cc_' in dir else ('dirac' if 'Dirac' in dir else 'majorana')
-        xsec   = getXsec(dir)
-        rec    = '*' if ('Moriond17_aug2018_miniAODv3' in sampleDir or 'Fall17' in sampleDir or 'Autumn18' in sampleDir) else '-'
-        ver    = ('2018' if 'Autumn18' in sampleDir else ('2017' if 'Fall17' in sampleDir else ('2016v3' if 'miniAODv3' in sampleDir else '2016v2')))
-        sampleInfos.append((rec, type, mass, V2, ctau, ratio, nfiles*1000, xsec, ver, dir)) # for events, we assume nfiles*1000, in principle we can try to calculate this more precisely later
+        V            = float(dir.split('V-')[-1].split('_')[0])
+        V2           = V**2
+        mass         = float(dir.split('M-')[-1].split('_')[0])
+        ctau         = getCtau(dir.split('/')[-1])
+        ctauT        = getCtauTheory(getFlavor(dir), mass, V2)
+        ratio        = ('%2.2f' % (ctau/ctauT)) if ctauT else '-'
+        type         = 'dirac_cc' if '_cc_' in dir else ('dirac' if 'Dirac' in dir else 'majorana')
+        xsec, events = getXsecAndEvents(dir)
+        rec          = '*' if ('Moriond17_aug2018_miniAODv3' in sampleDir or 'Fall17' in sampleDir or 'Autumn18' in sampleDir) else '-'
+        ver          = ('2018' if 'Autumn18' in sampleDir else ('2017' if 'Fall17' in sampleDir else ('2016v3' if 'miniAODv3' in sampleDir else '2016v2')))
+        sampleInfos.append((rec, type, mass, V2, ctau, ratio, events, xsec, ver, dir))
         total += nfiles*1000
       f.write('%10s --> %d events\n' % (ver, total))
 

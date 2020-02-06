@@ -5,7 +5,7 @@ os.chdir(os.path.dirname(__file__))
 
 
 start = time.time()
-maxTime = 3600*5         # Keep the time this script is running limited to 5 hours
+maxTime = 3600         # Keep the time this script is running limited
 
 
 def system(command):
@@ -92,9 +92,9 @@ def getLine(directory):
 with open('crossSectionsAndEvents.txt',"w") as f:
   for era in ['Fall17', 'Moriond17_aug2018_miniAODv3', 'Autumn18']:
     for type in ['prompt', 'displaced']:
-      f.write('%s\n\n' % era)
+      f.write('%s %s\n\n' % (era, type))
       pool = ThreadPool(processes=16)
-      directories = glob.glob('/pnfs/iihe/cms/store/user/*/heavyNeutrinoMiniAOD/' + era + '/' + type + '/Heavy*')
+      directories = glob.glob('/pnfs/iihe/cms/store/user/*/heavyNeutrinoMiniAOD/' + era + '/' + type + '/*')
       linesToWrite = pool.map(getLine, directories) 
       pool.close()
       pool.join()
