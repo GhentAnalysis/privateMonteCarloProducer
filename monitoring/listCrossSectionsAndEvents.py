@@ -36,11 +36,9 @@ def loadExisting(filename):
     return []
 
 system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/crossSectionsAndEvents.txt -O crossSectionsAndEventsOnGit.txt')
-currentLines  = []
-currentLines += loadExisting('crossSectionsAndEvents.txt')
+system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/eventCounters.txt -O eventCountersOnGit.txt')
+currentLines  = loadExisting('crossSectionsAndEvents.txt')
 currentLines += loadExisting('crossSectionsAndEventsOnGit.txt')
-system('rm crossSectionsAndEvents.txt')
-system('rm crossSectionsAndEventsOnGit.txt')
 
 # If the cross section is not known yet, calculate it
 def getCrossSection(directory):
@@ -60,29 +58,35 @@ def getCrossSection(directory):
     return -1
 
 # Store the number of events per file
-eventCounters = loadExisting('eventsCounter.txt')
+eventCounters  = loadExisting('eventCounters.txt')
+eventCounters += loadExisting('eventCountersOnGit.txt')
 def eventsPerFile(filename):
   for line in eventCounters:
     if filename in eventCounters:
       return  line.split()[-1]
   else:
     output = system('%s;edmFileUtil %s | grep events' % (setupCMSSW(), filename.replace('/pnfs/iihe/cms','')))
-    events = int(str(output).split('events')[0].split()[-1])
-    eventCounters.append('%-180s %8s\n' % (filename, events))
-    return events
+    try:
+      events = int(str(output).split('events')[0].split()[-1])
+      eventCounters.append('%-180s %8s\n' % (filename, events))
+      return events
+    except:
+      return 0
 
 # If the number of files is updated, recalculate the number of events
 def getEvents(directory):
   files = glob.glob(os.path.join(directory, '*.root'))
   for l in set(currentLines):
     try:
-      if dirrectory in l.split() and l.count('files')==1 and int(l.split()[5])==len(files) and not '?' in l.split():
+      if directory in l.split() and l.count('files')==1 and int(l.split()[5])==len(files) and not '?' in l.split():
         return '%s files' % len(files), '%s events' % l.split()[-2]
     except:
       pass
-  if (time.time() - start) > maxTime:
-    return '%s files' % len(files), '? events'
-  events = sum([eventsPerFile(f) for f in files])
+  events = 0
+  for f in files:
+    if (time.time() - start) > maxTime:
+      return '%s files' % len(files), '? events'
+    events += eventsPerFile(f)
   return '%s files' % len(files), '%s events' % events
 
 def getLine(directory):
@@ -104,4 +108,6 @@ with open('crossSectionsAndEvents.txt',"w") as f:
 with open('eventCounters.txt', 'w') as f:
   for line in eventCounters:
     f.write(line)
-system('git add crossSectionsAndEvents.txt;git add eventCounters.txt;git commit -m"Update of gridpack cross sections"') # make sure this are separate commits (the push you have to do yourself though)
+
+system('rm *OnGit.txt')
+system('git add crossSectionsAndEvents.txt;git add eventCounters.txt;git commit -m"Update of cross sections and events"') # make sure this are separate commits (the push you have to do yourself though)
