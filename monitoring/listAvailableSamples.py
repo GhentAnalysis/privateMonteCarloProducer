@@ -3,7 +3,7 @@
 import os, glob, fnmatch
 
 def getCtau(dir):
-  with open('/user/tomc/public/production/widths.txt') as f: # TODO: Move the relevant script into this repository
+  with open('widths.txt') as f:
     for l in f:
       if dir.replace('_tauLeptonic', '') in l:
         try:    return float(l.split()[2])
@@ -14,9 +14,9 @@ def getXsecAndEvents(dir):
   with open('crossSectionsAndEvents.txt') as f:
     for l in f:
       if dir in l:
-        try:    return ' '.join(l.split('pb')[0].split()[1:]), l.split('events')[0].split()[-1]
+        try:    return ' '.join(l.split('pb')[0].split()[1:]) if 'pb' in l else 'not yet available', l.split('events')[0].split()[-1]
         except: pass
-    return 'not_yet_available'
+    return 'not yet available', '?'
 
 # As calculated by the approximations in Phys Rev D 29, 2539 (1984)
 # They are not as precise as our cross sections
@@ -51,8 +51,9 @@ with open('availableHeavyNeutrinoSamples.txt', 'w') as f:
         V2           = V**2
         mass         = float(dir.split('M-')[-1].split('_')[0])
         ctau         = getCtau(dir.split('/')[-1])
-        ctauT        = getCtauTheory(getFlavor(dir), mass, V2)
+        ctauT        = None if 'prompt' in dir else getCtauTheory(getFlavor(dir), mass, V2)
         ratio        = ('%2.2f' % (ctau/ctauT)) if ctauT else '-'
+        ctau         = '-' if 'prompt' in dir else '%10.4f' % ctau
         type         = 'dirac_cc' if '_cc_' in dir else ('dirac' if 'Dirac' in dir else 'majorana')
         xsec, events = getXsecAndEvents(dir)
         rec          = '*' if ('Moriond17_aug2018_miniAODv3' in sampleDir or 'Fall17' in sampleDir or 'Autumn18' in sampleDir) else '-'
@@ -63,7 +64,7 @@ with open('availableHeavyNeutrinoSamples.txt', 'w') as f:
 
 
 
-  out = '%11s %10s %7.1f %10.2g %12.4f %18s %8d %28s %8s %s\n'
+  out = '%11s %10s %7.1f %10.2g %12s %18s %8s %28s %8s %s\n'
 
   f.write('\n')
   f.write(out.replace('.2f','s').replace('.4f','s').replace('.1f','s').replace('d','s').replace('.2g','s') % ('recommended', 'type', 'mass','V2','ctau (mm)','ctauRatioToTheory', 'events', 'cross section', 'miniAOD', 'directory'))
