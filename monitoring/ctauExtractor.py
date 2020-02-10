@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-
 import os,glob, tarfile
+os.chdir(os.path.dirname(__file__))
 
 def getWidth(gridpack):
   width = None
