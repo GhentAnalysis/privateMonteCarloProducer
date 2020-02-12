@@ -19,9 +19,9 @@ def system(command):
 def setupCMSSW():
   arch='slc6_amd64_gcc700'
   release='CMSSW_10_2_20'
-  setupCommand = 'export SCRAM_ARCH=' + arch + ';'
+  setupCommand  = 'export SCRAM_ARCH=' + arch + ';'
+  setupCommand += 'source /cvmfs/cms.cern.ch/cmsset_default.sh;'
   if not os.path.exists(release):
-    setupCommand += 'source $VO_CMS_SW_DIR/cmsset_default.sh;'
     setupCommand += '/cvmfs/cms.cern.ch/common/scram project CMSSW ' + release + ';'
   setupCommand += 'cd ' + release + '/src;'
   setupCommand += 'eval `/cvmfs/cms.cern.ch/common/scram runtime -sh`;'
@@ -31,23 +31,33 @@ def setupCMSSW():
 # See what is already available and load it, to avoid this script runs forever to do things which are already done
 def loadExisting(filename):
   try: 
-    with open(filename) as f: return set(l for l in f)
+    with open(filename) as f: return {l.split()[0] : l for l in f if 'pnfs' in l}
   except:
-    return set()
+    return {}
 
 system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/crossSectionsAndEvents.txt -O crossSectionsAndEventsOnGit.txt')
 system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/eventCounters.txt -O eventCountersOnGit.txt')
-currentLines = loadExisting('crossSectionsAndEvents.txt')
-currentLines.update(loadExisting('crossSectionsAndEventsOnGit.txt'))
+currentLinesGit = loadExisting('crossSectionsAndEventsOnGit.txt')
+currentLines    = loadExisting('crossSectionsAndEvents.txt')
+
+
+def getExistingLine(directory):
+  existingLine = None
+  if directory in currentLines and 'files' in currentLines[directory]:
+    existingLine = currentLines[directory]
+  if directory in currentLinesGit and 'files' in currentLinesGit[directory]:
+    if not existingLine or int(currentLinesGit[directory].split('files')[0].split()[-1]) > int(existingLine.split('files')[0].split()[-1]):
+      return currentLinesGit[directory]
+  return existingLine
+
 
 # If the cross section is not known yet, calculate it
 def getCrossSection(directory):
-  for l in currentLines:
-    try:
-      if directory in l.split() and l.count('pb')==1:  # if the line is already present (and correctly includes exactly one cross section, otherwise some formatting error might have occured)
-        return '%s +- %s pb' % (l.split()[1], l.split()[3])
-    except:
-      pass
+  existingLine = getExistingLine(directory)
+  if existingLine:
+    splittedLine = existingLine.split()
+    if splittedLine.count('pb')==1:  # if the line is already present (and correctly includes exactly one cross section, otherwise some formatting error might have occured)
+      return '%s +- %s pb' % (splittedLine[1], splittedLine[3])
   if (time.time() - start) > maxTime:
     return -1
   output = system('%s;cmsRun xsecAnalyzer.py inputDir=%s' % (setupCMSSW(), directory))
@@ -60,34 +70,32 @@ def getCrossSection(directory):
 # Store the number of events per file
 eventCounters = loadExisting('eventCounters.txt')
 eventCounters.update(loadExisting('eventCountersOnGit.txt'))
-newEventCounters = set()
+newEventCounters = {}
 def eventsPerFile(filename):
-  for line in eventCounters:
-    if filename in eventCounters:
-      return  line.split()[-1]
+  if filename in eventCounters:
+    return eventCounters[filename].split()[-1]
   output = system('%s;edmFileUtil %s | grep events' % (setupCMSSW(), filename.replace('/pnfs/iihe/cms','')))
   try:
     events = int(str(output).split('events')[0].split()[-1])
-    newEventCounters.update('%-180s %8s\n' % (filename, events))
+    newEventCounters[filename] = '%-180s %8s\n' % (filename, events)
     return events
   except:
-    return -99999999
+    return None
 
 # If the number of files is updated, recalculate the number of events
 def getEvents(directory):
   files = glob.glob(os.path.join(directory, '*.root'))
-  for l in currentLines:
-    try:
-      if directory in l.split() and l.count('files')==1 and int(l.split()[5])==len(files) and not '?' in l.split():
-        return '%s files' % len(files), '%s events' % l.split()[-2]
-    except:
-      pass
-  events = 0
+  existingLine = getExistingLine(directory)
+  if existingLine:
+    if existingLine.count('files')==1 and int(existingLine.split('files')[0].split()[-1])==len(files) and not '?' in existingLine:
+      return '%s files' % len(files), '%s events' % existingLine.split()[-2]
+  events = []
   for f in files:
-    if (time.time() - start) > maxTime:
-      return '%s files' % len(files), '? events'
-    events += eventsPerFile(f)
-  return '%s files' % len(files), '%s events' % (events if events > 0 else '?')
+    if (time.time() - start) > maxTime: events += [None]
+    else:                               events += [eventsPerFile(f)]
+  try:    events = sum([int(e) for e in events])
+  except: events = '?'
+  return '%s files' % len(files), '%s events' % events
 
 def getLine(directory):
   return '%-170s %30s %15s %15s\n' % ((directory, getCrossSection(directory)) + getEvents(directory))
@@ -107,7 +115,7 @@ with open('crossSectionsAndEvents.txt',"w") as f:
 
 eventCounters.update(newEventCounters)
 with open('eventCounters.txt', 'w') as f:
-  for line in eventCounters:
+  for line in sorted(eventCounters.values()):
     f.write(line)
 
 system('rm *OnGit.txt')
