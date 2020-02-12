@@ -66,3 +66,4 @@ updateWidths('widths.txt', [(None,                     '/user/tomc/public/privat
                             ('beforeApril2019',        '/pnfs/iihe/cms/store/user/*/gridpacks/beforeApril2019/*isplaced/*.tar.xz'),
                             ('beforeSeptember2019',    '/pnfs/iihe/cms/store/user/*/gridpacks/beforeSeptember2019/*isplaced/*.tar.xz')])
  
+system('git add widths.txt;git commit -m"Update of widths and ctaus"') # make sure this are separate commits (the push you have to do yourself though)
