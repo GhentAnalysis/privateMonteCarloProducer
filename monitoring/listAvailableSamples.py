@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
 import os, glob, fnmatch
+os.chdir(os.path.dirname(__file__))
 
 def getCtau(dir):
   with open('widths.txt') as f:
