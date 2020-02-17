@@ -29,6 +29,7 @@ def checkLogFile(file):
           elif 'read() failed with system error'                                        in line: state    = 'Input/output error'
           elif 'open() failed with system error'                                        in line: state    = 'Input/output error'
           elif "An exception of category 'FallbackFileOpenError' occurred"              in line: state    = 'Input/output error'
+          elif "An exception of category 'FileOpenError' occurred"                      in line: state    = 'Input/output error'
           elif 'read failed ; remote I/O error'                                         in line: state    = 'Input/output error'
           elif "write() failed with system error 'Stale file handle' (error code 116)"  in line: state    = 'Input/output error'
           elif 'Stale file handle'                                                      in line: state    = 'Automatic disk clean-up - staleFileHandle'
