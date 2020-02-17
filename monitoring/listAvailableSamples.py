@@ -52,8 +52,8 @@ with open('availableHeavyNeutrinoSamples.txt', 'w') as f:
         mass         = float(dir.split('M-')[-1].split('_')[0])
         ctau         = getCtau(dir.split('/')[-1])
         ctauT        = None if 'prompt' in dir else getCtauTheory(getFlavor(dir), mass, V2)
-        ratio        = ('%2.2f' % (ctau/ctauT)) if ctauT > 0 else '-'
-        ctau         = '-' if 'prompt' in dir else '%10.4f' % ctau
+        ratio        = ('%2.2f' % (ctau/ctauT)) if ctauT and ctau > 0 else '-'
+        ctau         = '-' if 'prompt' in dir or ctau < 0 else '%10.4f' % ctau
         type         = 'dirac_cc' if '_cc_' in dir else ('dirac' if 'Dirac' in dir else 'majorana')
         xsec, events = getXsecAndEvents(dir)
         rec          = '*' if ('Moriond17_aug2018_miniAODv3' in sampleDir or 'Fall17' in sampleDir or 'Autumn18' in sampleDir) else '-'
