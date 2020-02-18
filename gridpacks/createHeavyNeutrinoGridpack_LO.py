@@ -12,6 +12,7 @@ argParser.add_argument('--flavor',       action='store',      default='e',      
 argParser.add_argument('--hnlType',      action='store',      default='majorana',           help='Select HNL type', choices=['majorana', 'dirac', 'dirac_cc'])
 argParser.add_argument('--queue',        action='store',      default='cream02',            help='Select cluster or local resources', choices=['cream02', 'local'])
 argParser.add_argument('--pre2017',      action='store_true', default=False,                help='Use pre2017 settings')
+argParser.add_argument('--onlyPrompt',   action='store_true', default=False,                help='Only generate a prompt gridpack')
 args = argParser.parse_args()
 
 
@@ -29,18 +30,10 @@ def intOrFloat(str):
 #
 if args.coupling=='predefined':
   if args.flavor!='tau': # new points
-    if intOrFloat(args.mass) == 12:   v2s = [1e-4, 1e-5]
-    elif intOrFloat(args.mass) == 11: v2s = [1e-4, 1e-5]
-    elif intOrFloat(args.mass) == 10: v2s = [1e-4, 1e-5]
-    elif intOrFloat(args.mass) == 9:  v2s = [1e-3, 1e-5]
-    elif intOrFloat(args.mass) == 8:  v2s = [1e-2, 1e-3, 5e-6]
-    elif intOrFloat(args.mass) == 7:  v2s = [1e-2, 1e-3]
-    elif intOrFloat(args.mass) == 6:  v2s = [1e-2, 1e-3]
-    elif intOrFloat(args.mass) == 5:  v2s = [5e-2, 5e-3]
-    elif intOrFloat(args.mass) == 4:  v2s = [5e-2, 5e-3]
-    elif intOrFloat(args.mass) == 3:  v2s = [5e-1, 5e-2]
-    elif intOrFloat(args.mass) == 2:  v2s = [5e-1, 5e-2]
-    elif intOrFloat(args.mass) == 1:  v2s = [5e-1, 5e-4]
+    if   intOrFloat(args.mass) == 14: v2s = [1e-6, 3e-7]
+    elif intOrFloat(args.mass) == 12: v2s = [1e-6, 4e-7]
+    elif intOrFloat(args.mass) == 10: v2s = [2e-7, 6e-8]
+    elif intOrFloat(args.mass) == 8:  v2s = [4e-7, 2e-7]
   elif 'dirac' in args.hnlType and args.flavor=='tau':
     if intOrFloat(args.mass) == 1:    vs  = [4.66e-1]
     elif intOrFloat(args.mass) == 2:  vs  = [5.00e-2]
@@ -90,8 +83,8 @@ def createGridpack(coupling):
   baseName = makeHeavyNeutrinoCards(intOrFloat(args.mass), float(coupling), args.flavor, args.pre2017, args.channel, noZ=False, dirac=('dirac' in args.hnlType), cc=('cc' in args.hnlType))
   os.chdir(workDir)
 
-  # Check if displaced gridpack already exists
-  gridpack = findGridpack(displacedGridpacks, baseName)
+  # Check if prompt gridpack already exists
+  gridpack = findGridpack(promptGridpacks, baseName)
   if gridpack:
     print gridpack + ' already exist, skipping'
     return None
@@ -153,12 +146,15 @@ for coupling in couplings:
     print gridpack + ' --> fixing for Madspin bug'
     os.system('./fixGridpack.sh ' + gridpack)
     print gridpack + ' --> prompt done'
-    shutil.copyfile(gridpack, os.path.join(promptGridpacks, gridpack))
 
-    print gridpack + ' --> fixing for displaced'
-    os.system('./fixGridpackForDisplacedLO.sh ' + gridpack)
-    shutil.move(gridpack, os.path.join(displacedGridpacks, gridpack))
-    print gridpack + ' --> displaced done'
+    if args.onlyPrompt:
+      shutil.move(gridpack, os.path.join(promptGridpacks, gridpack))
+    else:
+      shutil.copyfile(gridpack, os.path.join(promptGridpacks, gridpack))
+      print gridpack + ' --> fixing for displaced'
+      os.system('./fixGridpackForDisplacedLO.sh ' + gridpack)
+      shutil.move(gridpack, os.path.join(displacedGridpacks, gridpack))
+      print gridpack + ' --> displaced done'
 
     try:    os.remove(gridpack.split('LO')[0] + 'LO.log')
     except: pass
