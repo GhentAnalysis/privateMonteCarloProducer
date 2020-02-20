@@ -102,7 +102,7 @@ def getLine(directory):
 
 # Rewrite the file and calculate the x-sec for the new ones
 with open('crossSectionsAndEvents.txt',"w") as f:
-  for era in ['Fall17', 'Moriond17_aug2018_miniAODv3', 'Autumn18']:
+  for era in ['Fall17', 'Moriond17_aug2018_miniAODv3', 'Autumn18', 'Moriond17_aug2018']:
     for type in ['prompt', 'displaced']:
       f.write('%s %s\n\n' % (era, type))
       pool = ThreadPool(processes=16)
