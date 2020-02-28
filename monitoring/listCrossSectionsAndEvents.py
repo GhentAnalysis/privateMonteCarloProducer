@@ -36,7 +36,7 @@ def loadExisting(filename):
     return {}
 
 system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/crossSectionsAndEvents.txt -O crossSectionsAndEventsOnGit.txt')
-system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/eventCounters.txt -O eventCountersOnGit.txt')
+system('wget https://raw.githubusercontent.com/GhentAnalysis/privateMonteCarloProducer/master/monitoring/eventCounters.txt.xz -O eventCountersOnGit.txt.xz')
 currentLinesGit = loadExisting('crossSectionsAndEventsOnGit.txt')
 currentLines    = loadExisting('crossSectionsAndEvents.txt')
 
@@ -68,6 +68,7 @@ def getCrossSection(directory):
     return -1
 
 # Store the number of events per file
+system('unxz eventCounters.txt.xz;unxz eventCountersOnGit.txt.xz')
 eventCounters = loadExisting('eventCounters.txt')
 eventCounters.update(loadExisting('eventCountersOnGit.txt'))
 newEventCounters = {}
@@ -119,4 +120,5 @@ with open('eventCounters.txt', 'w') as f:
     f.write(line)
 
 system('rm *OnGit.txt')
-system('git add crossSectionsAndEvents.txt;git add eventCounters.txt;git commit -m"Update of cross sections and events"') # make sure this are separate commits (the push you have to do yourself though)
+system('xz -f eventCounters.txt')
+system('git add crossSectionsAndEvents.txt;git add eventCounters.txt.xz;git commit -m"Update of cross sections and events"') # make sure this are separate commits (the push you have to do yourself though)
