@@ -86,18 +86,18 @@ waitBeforeNextTry(){
   existing=$(ls -l $dir/$promptOrDisplaced/$shortName/*.root | wc -l)
   if [[ $path == *"highPriority"* ]]; then
     if ((existing < 5 && $i < 3)); then sleep 10;
-    elif ((existing < 100));       then sleep $((100 + $1**2/50));
-    elif ((existing < 250));       then sleep $((200 + $1**2/30));
-    else                                sleep $((500 + $1**2/20));
+    elif ((existing < 100));       then sleep $((100 + $1**(2/50)));
+    elif ((existing < 250));       then sleep $((200 + $1**(2/30)));
+    else                                sleep $((500 + $1**(2/20)));
     fi
   else
     if ((existing < 5));    then sleep 100;
-    elif ((existing < 25)); then sleep $((300 + $1**2/20));
+    elif ((existing < 25)); then sleep $((300 + $1**(2/20)));
     else
       otherRunning=$(ps -ef | grep runProduction.sh | wc -l)
-      if ((otherRunning > 50)); then sleep $((30*$otherRunning + $1**2/10)); # If there so many other productions ongoing, sleep a long time
-      elif ((existing < 250));  then sleep $((200 + $1**2/20));
-      else                           sleep $((500 + $1**2/10));
+      if ((otherRunning > 50)); then sleep $((30*$otherRunning + $1**(2/10))); # If there so many other productions ongoing, sleep a long time
+      elif ((existing < 250));  then sleep $((200 + $1**(2/20)));
+      else                           sleep $((500 + $1**(2/10)));
       fi
     fi
   fi
