@@ -29,7 +29,13 @@ def intOrFloat(str):
 # Predefined points, gridpacks will be created for each coupling in couplings
 #
 if args.coupling=='predefined':
-  if args.flavor!='tau': # new points
+  if args.flavor=='2l': # new points
+    if   intOrFloat(args.mass) == 10: v2s = [1.5e-8, 3.3e-7]
+    elif intOrFloat(args.mass) == 8:  v2s = [6e-8, 1.2e-6, 5.2e-6]
+    elif intOrFloat(args.mass) == 6:  v2s = [3.5e-7, 2.3e-6]
+    elif intOrFloat(args.mass) == 5:  v2s = [1e-6, 3e-6]
+    elif intOrFloat(args.mass) == 1:  v2s = [0.02, 0.004]
+  elif args.flavor!='tau': # new points
     if   intOrFloat(args.mass) == 14: v2s = [1e-6, 3e-7]
     elif intOrFloat(args.mass) == 12: v2s = [1e-6, 4e-7]
     elif intOrFloat(args.mass) == 10: v2s = [2e-7, 6e-8]
