@@ -127,8 +127,9 @@ sleep 1m
 gfal-mkdir -p -vvv srm://maite.iihe.ac.be:8443$pnfsMiniAOD
 gfal-copy -f -vvv file://$prodDir/heavyNeutrinoMiniAOD.root srm://maite.iihe.ac.be:8443$pnfsMiniAOD/heavyNeutrino_$productionNumber.root
 
-gfal-mkdir -p srm://maite.iihe.ac.be:8443$pnfsAOD
-gfal-copy -f file://$prodDir/heavyNeutrinoAOD.root srm://maite.iihe.ac.be:8443$pnfsAOD/heavyNeutrino_$productionNumber.root
+# Do not store AOD anymore, T2BE is running out of disk space
+#gfal-mkdir -p srm://maite.iihe.ac.be:8443$pnfsAOD
+#gfal-copy -f file://$prodDir/heavyNeutrinoAOD.root srm://maite.iihe.ac.be:8443$pnfsAOD/heavyNeutrino_$productionNumber.root
 
 
 # clean up
