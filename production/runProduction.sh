@@ -43,6 +43,7 @@ shortName="${gridpack%_slc*}$spec"
 existing=$(ls -l $dir/$promptOrDisplaced/$shortName/*.root | wc -l)
 printf "Already $existing existing root files for $shortName\n"
 
+
 # Set a target, try to get to 100 first. Already running productions go up to a next target
 if (( existing < 100 ));   then target=100;
 elif (( existing < 101 )); then target=100;
@@ -54,8 +55,6 @@ elif (( existing < 250 )); then target=250;
 elif (( existing < 251 )); then target=250;
 elif (( existing < 300 )); then target=300;
 elif (( existing < 301 )); then target=300;
-elif (( existing < 350 )); then target=350;
-elif (( existing < 351 )); then target=350;
 elif (( existing < 400 )); then target=400;
 elif (( existing < 401 )); then target=400;
 elif (( existing < 500 )); then target=500;
@@ -112,7 +111,7 @@ for i in $(seq 1 $target); do
     while [[ $out != *"cream02"* ]]; do
       while
         waitForMunge
-        qstat=$(qstat -u tomc && echo "OK")
+        qstat=$(qstat -u $USER && echo "OK")
         queuing=$(echo "$qstat" | grep 'Q' | wc -l)
         runningNewLastHour=$(echo "$qstat" | grep 'R 00:' | wc -l)
         nofailure=$(echo "$qstat" | grep 'OK' | wc -l)
@@ -121,7 +120,7 @@ for i in $(seq 1 $target); do
         waitBeforeNextTry $i
       done
       touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
-      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir",era="$1" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=30:00:00 $PWD/produceEvents.sh)
+      out=$(qsub -v productionNumber="$i",gridpack="$gridpack",gridpackDir="$gridpackDir",promptOrDisplaced="$promptOrDisplaced",spec="$spec",fragmentDir="$fragmentDir",era="$1" -q localgrid@cream02 -o "$logDir/$i.txt" -e "$logDir/$i.txt" -l walltime=40:00:00 $PWD/produceEvents.sh)
     done
     printf "Submitted $i of $shortName \n"
     waitBeforeNextTry $i
