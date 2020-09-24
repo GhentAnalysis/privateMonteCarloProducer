@@ -8,5 +8,6 @@ In order to get an up-to-date list of your gridpack's cross sections, events, et
   30     6    *            *     *                zsh -c "<path>/privateMonteCarloProducer/monitoring/listAvailableSamples.py"
 ```
 (you can use bash instead zsh too of course)
+It is best to keep some hours in between the two cron tasks, as the second script needs the input of the first.
 
 If you copy the produced availableHeavyNeutrinoSamples.txt and the index.php to a subdirectory in your ~/public\_html, you will get the website with filter bar.
