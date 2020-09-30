@@ -27,7 +27,8 @@ mkdir -p $logDir
 
 # Job submission limits
 maxQueuing=5
-maxRunningNewLastHour=45
+# from Tom = 45, for smaller disk quota --> 20
+maxRunningNewLastHour=20 
 
 # Output directory
 if   [[ $1 == "Moriond17" ]]; then dir=/pnfs/iihe/cms/store/user/$USER/heavyNeutrinoMiniAOD/Moriond17_aug2018_miniAODv3
