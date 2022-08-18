@@ -1,0 +1,13 @@
+executable = container_produceEvents.sh
+arguments = $(i) $(gridpack) $(gridpackDir) $(promptOrDisplaced) $(fragmentDir) $(era)
+
+should_transfer_files = YES
+log = $(logDir)/$(i).log
+output = $(logDir)/$(i).out
+error = $(logDir)/$(i).err
+
+request_cpus = 1
+request_disk = 1000
+request_memory = 2000
+
+queue i,gridpack,gridpackDir,promptOrDisplaced,fragmentDir,era,logDir from ProductionJobList.txt
