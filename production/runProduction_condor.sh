@@ -113,7 +113,7 @@ for i in $(seq 1 $target); do
       while
         waitForMunge
         condor_q=$(condor_q)
-        jobs_summary=($(echo "$condor_q" | grep 'Total for bvermass'))
+        jobs_summary=($(echo "$condor_q" | grep 'Total for '$USER ))
         queuing=${jobs_summary[9]}
         running=${jobs_summary[11]}
         nofailure=$(echo "$jobs_summary" | wc -l)
