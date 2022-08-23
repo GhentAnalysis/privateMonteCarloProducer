@@ -1,7 +1,7 @@
 executable = container_produceEvents_condor.sh
 arguments = $(i) $(gridpack) $(gridpackDir) $(promptOrDisplaced) $(fragmentDir) $(era)
 
-should_transfer_files = YES
+should_transfer_files = NO
 log = $(logDir)/$(i).log
 output = $(logDir)/$(i).out
 error = $(logDir)/$(i).err

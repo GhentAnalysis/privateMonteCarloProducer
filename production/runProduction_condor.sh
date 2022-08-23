@@ -7,7 +7,8 @@
 #   with "option" currently only "tauLeptonic" implemented or empty
 gridpack=$(basename $2)
 gridpack=${gridpack%_tarball.tar.xz}
-gridpackDir=$(dirname $(readlink -f $2))
+#gridpackDir=$(dirname $(readlink -f $2))
+gridpackDir=$(dirname $2)
 fragmentDir=$PWD
 era=$1
 
