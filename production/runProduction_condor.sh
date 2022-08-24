@@ -45,26 +45,27 @@ existing=$(ls -l $dir/$promptOrDisplaced/$shortName/*.root | wc -l)
 printf "Already $existing existing root files for $shortName\n"
 
 # Set a target, try to get to 100 first. Already running productions go up to a next target
-if (( existing < 100 ));   then target=100;
-elif (( existing < 101 )); then target=100;
-elif (( existing < 150 )); then target=150;
-elif (( existing < 151 )); then target=150;
-elif (( existing < 200 )); then target=200;
-elif (( existing < 201 )); then target=200;
-elif (( existing < 250 )); then target=250;
-elif (( existing < 251 )); then target=250;
-elif (( existing < 300 )); then target=300;
-elif (( existing < 301 )); then target=300;
-elif (( existing < 350 )); then target=350;
-elif (( existing < 351 )); then target=350;
-elif (( existing < 400 )); then target=400;
-elif (( existing < 401 )); then target=400;
-elif (( existing < 500 )); then target=500;
-elif (( existing < 501 )); then target=500;
-elif (( existing < 750 )); then target=750;
-elif (( existing < 751 )); then target=750;
-else                            target=999;
-fi
+target=999
+#if (( existing < 100 ));   then target=100;
+#elif (( existing < 101 )); then target=100;
+#elif (( existing < 150 )); then target=150;
+#elif (( existing < 151 )); then target=150;
+#elif (( existing < 200 )); then target=200;
+#elif (( existing < 201 )); then target=200;
+#elif (( existing < 250 )); then target=250;
+#elif (( existing < 251 )); then target=250;
+#elif (( existing < 300 )); then target=300;
+#elif (( existing < 301 )); then target=300;
+#elif (( existing < 350 )); then target=350;
+#elif (( existing < 351 )); then target=350;
+#elif (( existing < 400 )); then target=400;
+#elif (( existing < 401 )); then target=400;
+#elif (( existing < 500 )); then target=500;
+#elif (( existing < 501 )); then target=500;
+#elif (( existing < 750 )); then target=750;
+#elif (( existing < 751 )); then target=750;
+#else                            target=999;
+#fi
 
 #
 # Wait some additional time when munge is running
