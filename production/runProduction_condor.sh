@@ -106,25 +106,26 @@ waitBeforeNextTry(){
 }
 
 
+printf "target is $target\n"
 for i in $(seq 1 $target); do
   if [ -f $dir/$promptOrDisplaced/$shortName/heavyNeutrino_$i.root ]; then
     printf "Skipping $i of $shortName, outputfile already exists\n"
   else
     out=""
-    while [[ $out != *"1 job(s) submitted to cluster"* ]]; do
+    while [[ $out != *"job(s) submitted to cluster"* ]]; do
       while
         waitForMunge
         condor_q=$(condor_q)
         jobs_summary=($(echo "$condor_q" | grep 'Total for '$USER ))
         queuing=${jobs_summary[9]}
         running=${jobs_summary[11]}
-        nofailure=$(echo "$jobs_summary" | wc -l)
-        echo "$queuing $running $nofailure"
-        (( $queuing > $maxQueuing )) || (( $running > $maxRunning )) || (( $nofailure < 1 ))
+        echo "$queuing $running"
+        [[ ! -n $running ]] || (( $queuing > $maxQueuing )) || (( $running > $maxRunning ))
       do
         waitBeforeNextTry $i
       done
       touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
+      > ProductionJobList.txt
       echo "$i $gridpack $gridpackDir $promptOrDisplaced $fragmentDir $1 $logDir" > ProductionJobList.txt
       out=$(condor_submit produceEvents_condor.submit)
       echo $out
