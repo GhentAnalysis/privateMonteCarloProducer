@@ -136,9 +136,9 @@ export X509_USER_PROXY=/user/$USER/x509up_u`id -u`
 mkdir -p $pnfsMiniAOD
 cp -f $prodDir/heavyNeutrinoMiniAOD.root $pnfsMiniAOD/heavyNeutrino_$productionNumber.root
 
-# Do not store AOD anymore, T2BE is running out of disk space
-mkdir -p $pnfsAOD
-cp -f $prodDir/heavyNeutrinoAOD.root $pnfsAOD/heavyNeutrino_$productionNumber.root
+## Do not store AOD anymore, T2BE is running out of disk space
+#mkdir -p $pnfsAOD
+#cp -f $prodDir/heavyNeutrinoAOD.root $pnfsAOD/heavyNeutrino_$productionNumber.root
 
 
 # clean up
