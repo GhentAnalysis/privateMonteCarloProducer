@@ -11,6 +11,7 @@ gridpack=${gridpack%_tarball.tar.xz}
 gridpackDir=$(dirname $2)
 fragmentDir=$PWD
 era=$1
+condorSubmitFile="condorSubmit_$gridpack"
 
 if [[ $2 == *"prompt"* ]];      then promptOrDisplaced=prompt
 elif [[ $2 == *"displaced"* ]]; then promptOrDisplaced=displaced
@@ -105,6 +106,19 @@ waitBeforeNextTry(){
   fi
 }
 
+writeSubmitFile(){
+    echo "executable = container_produceEvents_condor.sh" > $8
+    echo "arguments = $1 $2 $3 $4 $5 $6" >> $8
+    echo "should_transfer_files = NO" >> $8
+    echo "log = $7/$1.log" >> $8
+    echo "output = $7/$1.out" >> $8
+    echo "error = $7/$1.err" >> $8
+    echo "request_cpus = 1" >> $8
+    echo "request_disk = 1000" >> $8
+    echo "request_memory = 2000" >> $8
+    echo "queue 1" >> $8
+}
+
 
 printf "target is $target\n"
 for i in $(seq 1 $target); do
@@ -125,9 +139,8 @@ for i in $(seq 1 $target); do
         waitBeforeNextTry $i
       done
       touch $logDir # resets mtime of directory, used for the cleanLogDir.py script
-      > ProductionJobList.txt
-      echo "$i $gridpack $gridpackDir $promptOrDisplaced $fragmentDir $1 $logDir" > ProductionJobList.txt
-      out=$(condor_submit produceEvents_condor.submit)
+      writeSubmitFile $i $gridpack $gridpackDir $promptOrDisplaced $fragmentDir $era $logDir $condorSubmitFile
+      out=$(condor_submit ${condorSubmitFile})
       echo $out
     done
     printf "Submitted $i of $shortName \n"
