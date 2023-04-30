@@ -58,12 +58,14 @@ def updateWidths(file, storages):
           os.system('rm ' +gridpack)
           continue
         else:
-          f.write('%-150s %20e %20f %20s\n' % (shortName, width, ctau, (('(' + variation + ')') if variation else '')))
+          f.write('%-150s %20e %20f %20s\n' % (shortName.replace('.','p'), width, ctau, (('(' + variation + ')') if variation else '')))
 
-updateWidths('widths.txt', [(None,                     '/user/tomc/public/privateMonteCarloProducer/gridpacks/displaced/*.tar.xz'),
-                            ('oldSetup-beforeNov2017', '/pnfs/iihe/cms/store/user/*/gridpacks/oldSetup-beforeNov2017/*isplaced/*.tar.xz'),
-                            ('beforeApril2018',        '/pnfs/iihe/cms/store/user/*/gridpacks/beforeApril2018/*isplaced/*.tar.xz'),
-                            ('beforeApril2019',        '/pnfs/iihe/cms/store/user/*/gridpacks/beforeApril2019/*isplaced/*.tar.xz'),
-                            ('beforeSeptember2019',    '/pnfs/iihe/cms/store/user/*/gridpacks/beforeSeptember2019/*isplaced/*.tar.xz')])
+updateWidths('widths_official.txt', [('2016', '/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.4.2/exo_heavyNeutrino/displaced_pre2017/v*/*.tar.xz'),
+                                     ('2017', '/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.4.2/exo_heavyNeutrino/displaced_2017/v1/*.tar.xz')])
+#updateWidths('widths.txt', [(None,                     '/user/tomc/public/privateMonteCarloProducer/gridpacks/displaced/*.tar.xz'),
+#                            ('oldSetup-beforeNov2017', '/pnfs/iihe/cms/store/user/*/gridpacks/oldSetup-beforeNov2017/*isplaced/*.tar.xz'),
+#                            ('beforeApril2018',        '/pnfs/iihe/cms/store/user/*/gridpacks/beforeApril2018/*isplaced/*.tar.xz'),
+#                            ('beforeApril2019',        '/pnfs/iihe/cms/store/user/*/gridpacks/beforeApril2019/*isplaced/*.tar.xz'),
+#                            ('beforeSeptember2019',    '/pnfs/iihe/cms/store/user/*/gridpacks/beforeSeptember2019/*isplaced/*.tar.xz')])
  
-system('git add widths.txt;git commit -m"Update of widths and ctaus"') # make sure this are separate commits (the push you have to do yourself though)
+#system('git add widths.txt;git commit -m"Update of widths and ctaus"') # make sure this are separate commits (the push you have to do yourself though)

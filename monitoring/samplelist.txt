@@ -1,0 +1,2 @@
+dilep:/HeavyNeutrino_lljj_M-10_V-0p000793725393319_e_massiveAndCKM_LO_TuneCP5_madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2/MINIAODSIM
+#dilep:/pnfs/iihe/cms/store/user/bvermass/heavyNeutrinoMiniAOD/Fall17/displaced/HeavyNeutrino_lljj_M-20.0_V-0.0002236067_mu_massiveAndCKM_LO

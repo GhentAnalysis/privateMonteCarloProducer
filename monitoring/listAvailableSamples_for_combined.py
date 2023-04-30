@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os,sys,subprocess, glob, fnmatch
-#os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__))
 
 def getCtau(dir):
   dir = dir.split('_LO')[0]
@@ -17,6 +17,7 @@ def getXsecAndEvents(dir):
       if dir in l:
         try:    return ' '.join(l.split('pb')[0].split()[1:]) if 'pb' in l else 'not yet available', l.split('events')[0].split()[-1]
         except: pass
+    return 0., 0.
     return 'not yet available', '?'
 
 def system(command):
@@ -45,8 +46,8 @@ def getFlavor(dir):
     if ('_'+i+'_') in dir: return i
 
 
-with open('availableHeavyNeutrinoSamples_official.txt', 'w') as f:
-  with open('heavyNeutrinoFileList_official.txt', 'w') as ff:
+with open('availableHeavyNeutrinoSamples_official_combined.txt', 'w') as f:
+  with open('heavyNeutrinoFileList_official_combined.txt', 'w') as ff:
     datasets = [dataset for dataset in open(sys.argv[1])]
     sampleDir = [dataset.split(':')[-1].strip('\n') for dataset in datasets if dataset and not dataset.startswith('#')]
     sampleInfos = []
@@ -58,27 +59,27 @@ with open('availableHeavyNeutrinoSamples_official.txt', 'w') as f:
     #  for dir in glob.glob(sampleDir):
     for dir in sampleDir:
       #files  = fnmatch.filter(os.listdir(dir), '*.root')
-      files = getPhysicalFileNames(dir)
-      nfiles = len(files)
-      if not nfiles: continue
-      ff.write(dir + '\n')
-      for file in sorted(files): ff.write(file + '\n')
-      ff.write('\n')
+      #files = getPhysicalFileNames(dir)
+      nfiles = 1# len(files)
+      #if not nfiles: continue
+      #ff.write(dir + '\n')
+      #for file in sorted(files): ff.write(file + '\n')
+      #ff.write('\n')
       print(dir)
       print(dir.split('V-')[-1].split('_')[0].replace('p','.'))
-      V            = float(dir.split('V-')[-1].split('_')[0].replace('p','.').replace(' ',''))
-      V2           = V**2
+      #V            = float(dir.split('V-')[-1].split('_')[0].replace('p','.').replace(' ',''))
+      V2           = 0.
       mass         = float(dir.split('M-')[-1].split('_')[0])
-      ctau         = getCtau(dir.split('/')[1])
-      ctauT        = None if 'prompt' in dir else getCtauTheory(getFlavor(dir), mass, V2)
+      ctau         = 0.#getCtau(dir.split('/')[1])
+      ctauT        = None# if 'prompt' in dir else getCtauTheory(getFlavor(dir), mass, V2)
       ratio        = ('%2.2f' % (ctau/ctauT)) if ctauT and ctau > 0 else '-'
-      ctau         = '-' if 'prompt' in dir or ctau < 0 else '%10.4f' % ctau
+      ctau         = '-' if 'prompt' in dir or 'combined' in dir or ctau < 0 else '%10.4f' % ctau
       type         = 'dirac_cc' if '_cc_' in dir else ('dirac' if 'Dirac' in dir else 'majorana')
       xsec, events = getXsecAndEvents(dir)
       rec          = '*'# if ('Moriond17_aug2018_miniAODv3' in sampleDir or 'Fall17' in sampleDir or 'Autumn18' in sampleDir) else '-'
-      ver          = ('2018' if 'Autumn18' in dir else ('2017' if 'Fall17' in dir else ('2016v3'))) #if 'miniAODv3' in dir else '2016v2')))
+      ver          = ('2018' if 'MiniAOD2018' in dir else ('2017' if 'MiniAOD2017' in dir else ('2016v3'))) #if 'miniAODv3' in dir else '2016v2')))
       sampleInfos.append((rec, type, mass, V2, ctau, ratio, events, xsec, ver, dir))
-      total += nfiles*1000
+      #total += nfiles*1000
     f.write('%10s --> %d events\n' % (ver, total))
 
 
